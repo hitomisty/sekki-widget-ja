@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>二十四節気ウィジェット</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+  <style>
+    /* CSS リセット - ブログのCSSとの干渉を防ぐ */
+    .swh-widget-wrapper * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .swh-widget-wrapper {
+      font-family: 'Noto Serif', serif !important;
+      background-color: #f5f3eb !important;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px) !important;
+      background-size: 20px 20px !important;
+      color: #333 !important;
+      text-align: center !important;
+      padding: 2em !important;
+      border: 1px solid #ddd !important;
+      border-radius: 12px !important;
+      max-width: 320px !important;
+      margin: 0 auto !important;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+      font-size: 16px !important;
+      line-height: 1.5 !important;
+    }
+    
+    .swh-sekki-prefix {
+      font-size: 1.1em !important;
+      color: #666 !important;
+      margin-bottom: 0.3em !important;
+    }
+    
+    .swh-sekki-label {
+      font-size: 1.4em !important;
+      font-weight: bold !important;
+      margin: 0.3em 0 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    
+    .swh-sekki-description {
+      font-size: 0.9em !important;
+      color: #555 !important;
+      margin-top: 0.8em !important;
+      line-height: 1.4 !important;
+    }
+    
+    @media (max-width: 360px) {
+      .swh-widget-wrapper {
+        max-width: 90vw !important;
+        padding: 1.5em !important;
+      }
+      .swh-sekki-label {
+        font-size: 1.2em !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="swh-widget-wrapper">
+    <div class="swh-sekki-prefix">今の季節は、</div>
+    <div class="swh-sekki-label" id="swh-sekkiLabel">（読み込み中）</div>
+    <div class="swh-sekki-description" id="swh-sekkiDesc"></div>
+  </div>
+  <script>
+    (function() {
+      const sekkiInfo = [
+        ["立春", "🌱", "春のはじまり。寒さの中にも芽吹きの気配が。", "冬の疲れをいたわりながら、少しずつ体を起こしましょう。"],
+        ["雨水", "💧", "雪が雨に変わり、雪解けが進む頃。", "巡りをよくして、湿気に備えて。"],
+        ["啓蟄", "🐞", "冬ごもりの虫が顔を出す頃。", "軽い運動で春の流れに乗って。"],
+        ["春分", "🌸", "昼夜がほぼ同じ長さになる日。", "心と体のバランスを意識して。"],
+        ["清明", "🌿", "草木が芽吹き、清らかな気が満ちる頃。", "外に出て自然に触れて。"],
+        ["穀雨", "🌾", "穀物を潤す恵みの雨が降る頃。", "食事を整えて、内側から養生を。"],
+        ["立夏", "☀️", "夏の兆しが見え始める頃。", "ペースを整え、心の余裕を。"],
+        ["小満", "🌼", "草木が伸び、満ち始める頃。", "リズムを守りながら前へ進んで。"],
+        ["芒種", "🌱", "田植えの季節。湿気が増す頃。", "胃腸をいたわり、体を軽く保って。"],
+        ["夏至", "🌻", "昼が最も長くなる日。", "こまめな休息と深い呼吸を。"],
+        ["小暑", "🍉", "本格的な暑さの前触れ。", "潤いを守って夏バテ予防を。"],
+        ["大暑", "🔥", "一年で最も暑い頃。", "冷たいものを控えて内側から整えて。"],
+        ["立秋", "🍂", "暦の上では秋の始まり。", "深呼吸で夏の疲れをとって。"],
+        ["処暑", "🌾", "暑さが少しずつ和らぐ頃。", "気温差に気をつけてゆるやかに。"],
+        ["白露", "💧", "草に白露が宿る頃。", "朝晩の冷えに備えて温かく。"],
+        ["秋分", "🍁", "昼と夜の長さが同じに。", "内側に目を向け、静けさを感じて。"],
+        ["寒露", "❄️", "露が冷たく感じられる頃。", "肺をいたわり、乾燥対策を。"],
+        ["霜降", "🌨️", "霜が降り始め、冬が近づく。", "あたたかい飲み物で体を守って。"],
+        ["立冬", "🌬️", "暦の上での冬の始まり。", "首元とお腹を冷やさないように。"],
+        ["小雪", "🌨️", "小さな雪がちらつく頃。", "深く呼吸し、潤いを補って。"],
+        ["大雪", "⛄", "本格的に雪が降り始める。", "冷えをためこまず、温かく。"],
+        ["冬至", "🕯️", "一年で最も日が短い日。", "静かな時間を大切にして休息を。"],
+        ["小寒", "🥶", "寒さが強まり始める頃。", "温かいものを食べて内側から養生。"],
+        ["大寒", "🧊", "一年で最も寒さが厳しい頃。", "静けさの中で体を休め、春に向けてエネルギーを蓄えて。"]
+      ];
+
+      function getCurrentSekki() {
+        const today = new Date();
+        const year = today.getFullYear();
+        
+        // 立春の日を年ごとに調整（2月3日〜5日の間で変動）
+        let risshunDate;
+        if (year <= 2024) {
+          risshunDate = new Date(year, 1, 4); // 2月4日
+        } else if (year <= 2057) {
+          risshunDate = new Date(year, 1, 4); // 2月4日
+        } else {
+          risshunDate = new Date(year, 1, 3); // 2月3日（将来の調整）
+        }
+        
+        // 各節気の日付を計算（15日間隔）
+        const sekkiDates = [];
+        for (let i = 0; i < 24; i++) {
+          const date = new Date(risshunDate);
+          date.setDate(date.getDate() + i * 15);
+          sekkiDates.push(date);
+        }
+        
+        // 年をまたぐ場合の処理
+        if (today < sekkiDates[0]) {
+          // 今年の立春前の場合、前年の大寒期間
+          return sekkiInfo[23];
+        }
+        
+        // 現在の節気を判定
+        for (let i = sekkiDates.length - 1; i >= 0; i--) {
+          if (today >= sekkiDates[i]) {
+            return sekkiInfo[i];
+          }
+        }
+        
+        return sekkiInfo[0]; // fallback
+      }
+
+      // DOM読み込み完了後に実行
+      function initWidget() {
+        const labelElement = document.getElementById("swh-sekkiLabel");
+        const descElement = document.getElementById("swh-sekkiDesc");
+        
+        if (labelElement && descElement) {
+          const [name, icon, desc, advice] = getCurrentSekki();
+          labelElement.textContent = `${icon} ${name}`;
+          descElement.textContent = `${desc} ${advice}`;
+        }
+      }
+
+      // DOMContentLoadedかreadyStateをチェックして初期化
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWidget);
+      } else {
+        initWidget();
+      }
+    })();
+  </script>
+</body>
+</html>
