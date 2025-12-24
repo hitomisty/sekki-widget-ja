@@ -50,7 +50,13 @@ URL: `https://hitomisty.github.io/sekki-widget-ja/`
 
 以下のコードをコピーして、ブログやWebサイトのHTMLに貼り付けてください。
 ```html
-<iframe src="https://hitomisty.github.io/sekki-widget-ja/" width="350" height="300" frameborder="0" style="border-radius: 12px;"></iframe>
+<iframe
+  src="https://hitomisty.github.io/sekki-widget-ja/"
+  width="350"
+  height="300"
+  frameborder="0"
+  style="border-radius: 12px;"
+></iframe>
 ```
 
 **サイズの調整**
